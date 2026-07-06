@@ -1,5 +1,5 @@
 data/raw/
-data/processed/
+# data/processed = 집계 결과 CSV(개별 레코드 없음) → 포폴 재현성 위해 포함
 .DS_Store
 __pycache__/
 *.pyc
