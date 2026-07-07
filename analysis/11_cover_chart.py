@@ -1,4 +1,4 @@
-"""표지용 대표 비주얼 — 감시견(정부·공인 감시) 이상-체감 격차의 3개년 고착.
+"""표지용 대표 비주얼 — 권력 감시(정부·공인 감시) 이상-체감 격차의 3개년 고착.
 Figma 레이아웃용: 제목/헤드라인은 비워두고(디자인에서 타이포), 그래프+주석만. 고해상도 300dpi.
 입력: data/processed/ts_gap2_roles.csv
 실행: ./.venv/bin/python analysis/11_cover_chart.py
@@ -11,7 +11,7 @@ YEARS = ["2021", "2023", "2025"]
 ORDER = ["정부감시", "약자대변", "기업감시", "정확정보", "의제설정", "다양의견", "해결책"]
 LABEL = {"정부감시": "정부·공인 감시", "약자대변": "사회적 약자 대변", "기업감시": "기업활동 감시",
          "정확정보": "정확한 정보제공", "의제설정": "의제 설정", "다양의견": "다양한 의견", "해결책": "해결책 제시"}
-HOT = "#1a4e8a"     # 강조(감시견)
+HOT = "#1a4e8a"     # 강조(권력 감시)
 GREY = "#d3dae2"    # 나머지
 
 d = pd.read_csv("data/processed/ts_gap2_roles.csv", dtype={"연도": str})
@@ -35,7 +35,7 @@ for role, row in piv.iterrows():
         ax.text(x[-1] + 0.06, row.values[-1], f"  {LABEL[role]}", va="center",
                 fontsize=9.5, color="#8a97a6")
 
-# 고착 강조: 감시견 밴드
+# 고착 강조: 권력 감시 밴드
 ax.axhspan(1.25, 1.45, color=HOT, alpha=0.05, zorder=0)
 ax.set_xticks(list(x)); ax.set_xticklabels(YEARS, fontsize=13)
 ax.set_xlim(-0.12, len(YEARS) - 1 + 1.15)
