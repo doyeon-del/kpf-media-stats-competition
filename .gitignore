@@ -5,3 +5,9 @@ __pycache__/
 *.pyc
 .ipynb_checkpoints/
 .venv/
+
+# bigkinds (B파트) — 원자료·중간산출물 미추적 (대용량 + 개별 기사 본문 포함)
+bigkinds/data/
+bigkinds/data_eval/
+bigkinds/out/
+bigkinds/.claude/
