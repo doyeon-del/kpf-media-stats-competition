@@ -180,6 +180,17 @@ def main():
     print(f"[gold] 전체 {len(gold_raw)}건 — 제외(사설/서평/미기입 등) {len(excluded)}건 → 유효 {len(valid)}건")
     print(valid["gold"].value_counts().reindex(LABELS, fill_value=0).to_string())
 
+    # 코더 간 일치도 — κ는 라벨 쏠림(정보·의제 다수)에서 과소평가되므로(유병률 역설) AC1 병기 (한계 7)
+    both = gold_raw[gold_raw["라벨_A"].isin(LABELS) & gold_raw["라벨_B"].isin(LABELS)]
+    if len(both):
+        pa = (both["라벨_A"] == both["라벨_B"]).mean()
+        pe_k = sum((both["라벨_A"] == k).mean() * (both["라벨_B"] == k).mean() for k in LABELS)
+        kappa = (pa - pe_k) / (1 - pe_k)
+        pi = {k: ((both["라벨_A"] == k).mean() + (both["라벨_B"] == k).mean()) / 2 for k in LABELS}
+        pe_g = sum(v * (1 - v) for v in pi.values()) / (len(LABELS) - 1)
+        ac1 = (pa - pe_g) / (1 - pe_g)
+        print(f"[일치도] n={len(both)} · 단순 {pa*100:.1f}% · Cohen's κ {kappa:.3f} · Gwet's AC1 {ac1:.3f}")
+
     cls = classify_all(valid)
     parse_fail = cls[cls["감시점수"].isna()]
     if len(parse_fail):

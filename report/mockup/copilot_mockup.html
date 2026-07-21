@@ -1,244 +1,227 @@
 <meta charset="utf-8">
-<title>감시 보도 코파일럿 — 화면 목업</title>
+<title>감시 보도 코파일럿</title>
 <style>
-/* ── 팔레트: dataviz 레퍼런스 인스턴스 값 사용 ───────────────────── */
-.viz-root{
-  color-scheme: light;
-  --surface-1:#fcfcfb; --plane:#f9f9f7; --line:#e3e2dd;
-  --text-primary:#0b0b0b; --text-secondary:#52514e; --text-muted:#7a7975;
-  --series-1:#2a78d6;  /* 감시 */
-  --series-2:#1baf7a;  /* 정보·의제 */
-  --series-3:#eda100;  /* 해결책 */
-  --good:#0ca30c; --warning:#fab219; --critical:#d03b3b;
-  --accent-soft:#eaf2fd;
-}
-*{box-sizing:border-box}
-body{margin:0;background:var(--plane);
-     font-family:"Malgun Gothic","맑은 고딕",-apple-system,system-ui,sans-serif;}
-.viz-root{max-width:1180px;margin:0 auto;padding:22px;color:var(--text-primary)}
+.app{
+  --su:#ffffff;--pl:#f6f7f9;--ln:#e5e7eb;--ln2:#eef0f3;
+  --tp:#111317;--ts:#5b6068;--tm:#8b9098;
+  --brand:#2a78d6;--brand-d:#1c5cab;--brand-soft:#eaf2fd;
+  --good:#0ca30c;--good-soft:#e7f6e7;--warn:#d98a00;--warn-soft:#fbf1da;
+  --crit:#d84343;--crit-soft:#fbe9e9;
+  font-family:"Pretendard","Malgun Gothic","맑은 고딕",-apple-system,system-ui,sans-serif;
+  color:var(--tp);line-height:1.6}
+.app *{box-sizing:border-box}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.app{max-width:1120px;margin:0 auto}
 
-/* ── 상단 바 ─────────────────────────────────────────────────────── */
-.topbar{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;
-        padding-bottom:14px;border-bottom:2px solid var(--text-primary);margin-bottom:18px}
-.brand{font-size:19px;font-weight:700;letter-spacing:-.2px}
-.brand span{color:var(--text-muted);font-weight:400;font-size:13px;margin-left:8px}
-.article-meta{font-size:12px;color:var(--text-secondary);margin-top:6px;max-width:640px;line-height:1.5}
-.article-meta b{color:var(--text-primary)}
+/* ── 히어로 후크 ─────────────────────────────── */
+.hero{background:#0f1620;color:#fff;border-radius:14px 14px 0 0;padding:22px 26px;
+  display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.hero h1{margin:0 0 6px;font-size:21px;font-weight:800;letter-spacing:-.5px;line-height:1.3}
+.hero p{margin:0;font-size:13px;color:#aeb6c2;line-height:1.6;max-width:560px}
+.hero .stat{margin-left:auto;text-align:right;flex:none}
+.hero .stat .big{font-size:44px;font-weight:800;line-height:1;color:#ff6b6b;font-variant-numeric:tabular-nums}
+.hero .stat .cap{font-size:11px;color:#aeb6c2;margin-top:6px;max-width:180px}
 
-/* 개선 전/후 토글 */
-.toggle{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;flex:none}
-.toggle button{border:0;background:var(--surface-1);color:var(--text-secondary);
-  font:600 12px/1 inherit;padding:9px 16px;cursor:pointer}
-.toggle button[aria-pressed="true"]{background:var(--text-primary);color:#fff}
+/* ── 앱 셸 ──────────────────────────────────── */
+.shell{border:1px solid var(--ln);border-top:0;border-radius:0 0 14px 14px;overflow:hidden;
+  background:var(--pl);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.hd{display:flex;align-items:center;gap:11px;padding:11px 18px;background:var(--su);border-bottom:1px solid var(--ln)}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:14px}
+.logo .dot{width:21px;height:21px;border-radius:7px;background:var(--brand);color:#fff;font:800 12px/21px sans-serif;text-align:center}
+.hd .tag{font-size:10px;color:var(--tm);padding:3px 7px;background:var(--pl);border-radius:6px}
+.hd .spacer{flex:1}
+.hd .pill{font-size:10.5px;color:var(--brand-d);background:var(--brand-soft);padding:5px 10px;border-radius:999px;font-weight:600}
 
-/* ── 레이아웃: 좌(점수·체크리스트) / 우(근거·제안) ─────────────── */
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;align-items:start}
-.card{background:var(--surface-1);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
-.card + .card{margin-top:14px}
-.card h3{margin:0 0 2px;font-size:12px;letter-spacing:.4px;color:var(--text-secondary);
-         text-transform:none;font-weight:700}
-.card .sub{margin:0 0 14px;font-size:11px;color:var(--text-muted)}
+.bar{display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--su);border-bottom:1px solid var(--ln2);flex-wrap:wrap}
+.bar .lbl{font-size:11px;color:var(--ts);font-weight:600}
+.chip{border:1px solid var(--ln);background:var(--su);border-radius:8px;padding:6px 12px;font:600 11.5px/1 inherit;color:var(--ts);cursor:pointer}
+.chip:hover{border-color:var(--brand);color:var(--brand)}.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.bar .spacer{flex:1}
+.seg{display:flex;border:1px solid var(--ln);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:var(--su);color:var(--ts);font:600 11.5px/1 inherit;padding:7px 14px;cursor:pointer;transition:background .2s}
+.seg button[aria-pressed="true"]{background:var(--tp);color:#fff}
+.seg button.hl{position:relative}
+.seg button.hl[aria-pressed="false"]::after{content:"";position:absolute;top:5px;right:6px;width:6px;height:6px;border-radius:50%;background:var(--brand)}
+.cta{border:0;border-radius:8px;background:var(--brand);color:#fff;font:700 11.5px/1 inherit;padding:8px 16px;cursor:pointer}
+.cta:hover{background:var(--brand-d)}
 
-/* ── ① 감시 점수 (히어로 넘버) ───────────────────────────────── */
-.hero{display:flex;align-items:baseline;gap:12px;margin:2px 0 4px}
-.hero .num{font-size:60px;font-weight:800;line-height:1;letter-spacing:-2px;
-           font-variant-numeric:tabular-nums}
-.hero .den{font-size:16px;color:var(--text-muted);font-weight:600}
-.hero .delta{margin-left:auto;font-size:13px;font-weight:700;color:var(--good)}
-.verdict{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;
-         padding:4px 10px;border-radius:999px;background:var(--accent-soft);color:#184f95}
-.hero-note{font-size:11px;color:var(--text-muted);margin-top:10px;line-height:1.55}
+.wk{display:grid;grid-template-columns:1.35fr 1fr}
+.pane{padding:18px 20px}.pane.left{border-right:1px solid var(--ln)}
+.pane-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.pane-h h3{margin:0;font-size:11.5px;font-weight:700;color:var(--ts)}.pane-h .meta{font-size:10.5px;color:var(--tm)}
+.doc{background:var(--su);border:1px solid var(--ln);border-radius:10px;padding:16px 18px;font-size:13.5px;line-height:2.05}
+.doc .src{display:block;font-size:10.5px;color:var(--tm);margin-bottom:9px;font-weight:600}
+mark{background:transparent;cursor:pointer;border-radius:2px;padding:1px 1px;transition:background .3s}
+mark.flag{text-decoration:underline wavy var(--crit);text-underline-offset:4px;text-decoration-thickness:2px;background:var(--crit-soft)}
+mark.credit{text-decoration:underline var(--good);text-underline-offset:4px;text-decoration-thickness:2px;background:var(--good-soft)}
+mark.on{outline:2px solid var(--brand);outline-offset:1px}
+.legend{display:flex;gap:15px;margin-top:11px;font-size:10.5px;color:var(--ts)}
+.legend i{font-style:normal;display:inline-flex;align-items:center;gap:6px}
+.legend .sw{width:18px;border-bottom:2px solid;display:inline-block;margin-bottom:3px}
+.note{margin-top:13px;border:1px solid var(--ln);border-left:3px solid var(--brand);background:var(--su);border-radius:9px;padding:12px 14px;font-size:12px;line-height:1.7;min-height:62px}
+.note .k{font-weight:700;font-size:10.5px;margin-bottom:4px;display:flex;align-items:center;gap:7px}
+.note .k .b{font-size:9.5px;font-weight:700;padding:1px 7px;border-radius:5px}
+.note.empty{color:var(--tm);border-left-color:var(--ln)}
+.b.crit{background:var(--crit-soft);color:var(--crit)}.b.good{background:var(--good-soft);color:var(--good)}
 
-/* ── 막대 공통 ───────────────────────────────────────────────── */
-.row{display:grid;grid-template-columns:118px 1fr 76px;gap:10px;align-items:center;
-     margin-bottom:9px}
-.row .lb{font-size:12px;color:var(--text-secondary)}
-.track{position:relative;height:14px;background:#efeeea;border-radius:4px}
-.fill{position:absolute;left:0;top:0;bottom:0;border-radius:4px;transition:width .45s ease}
-.val{font-size:11px;color:var(--text-secondary);text-align:right;font-variant-numeric:tabular-nums}
-.val b{color:var(--text-primary);font-size:12px}
-/* 상태 배지 — 색만으로 의미를 전하지 않도록 아이콘+라벨 동반 */
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;
-       padding:1px 6px;border-radius:4px;white-space:nowrap}
-.b-good{background:#e6f6e6;color:#0a6b0a} .b-warn{background:#fdf2d9;color:#8a5d00}
-.b-crit{background:#fbe7e7;color:#9c2626}
-
-/* ── ③ 평가 근거 ────────────────────────────────────────────── */
-.reason{font-size:13px;line-height:1.72;color:var(--text-primary);margin:0 0 12px}
-.evidence-btn{border:1px solid var(--line);background:var(--surface-1);border-radius:6px;
-  font:600 11px/1 inherit;color:var(--text-secondary);padding:6px 11px;cursor:pointer}
-.evidence-btn[aria-pressed="true"]{background:var(--text-primary);color:#fff;border-color:var(--text-primary)}
-.src{margin-top:12px;padding:13px 14px;background:var(--plane);border:1px solid var(--line);
-     border-radius:8px;font-size:12px;line-height:1.85;color:var(--text-secondary)}
-.src .hl{background:#fdf2d9;border-bottom:2px solid var(--warning);color:var(--text-primary);
-         padding:1px 2px;border-radius:2px}
-.src-cap{font-size:10px;color:var(--text-muted);margin-top:9px}
-
-/* ── ④ 개선 제안 ────────────────────────────────────────────── */
-.sug{display:flex;gap:11px;padding:11px 0;border-top:1px solid var(--line);font-size:12.5px;
-     line-height:1.65;color:var(--text-primary)}
-.sug:first-of-type{border-top:0;padding-top:2px}
-.sug .n{flex:none;width:20px;height:20px;border-radius:50%;background:var(--series-1);color:#fff;
-        font:700 11px/20px inherit;text-align:center}
-.sug.done .n{background:var(--good)}
-.sug.done .tx{color:var(--text-muted);text-decoration:line-through}
-.foot{margin-top:16px;font-size:10.5px;color:var(--text-muted);line-height:1.6;
-      border-top:1px solid var(--line);padding-top:11px}
-@media (max-width:900px){.grid{grid-template-columns:1fr}}
+.score-card{background:var(--su);border:1px solid var(--ln);border-radius:11px;padding:15px 16px;display:flex;align-items:center;gap:16px}
+.ring{width:92px;height:92px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative}
+.ring::before{content:"";position:absolute;inset:8px;background:var(--su);border-radius:50%}
+.ring .in{position:relative;text-align:center}
+.ring .in b{font-size:29px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}.ring .in span{font-size:10px;color:var(--tm)}
+.score-meta .verdict{font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;display:inline-block}
+.score-meta h4{margin:7px 0 3px;font-size:13px}.score-meta p{margin:0;font-size:11px;color:var(--ts);line-height:1.55}
+.delta{display:inline-block;margin-left:7px;font-size:12px;font-weight:800;color:var(--good);opacity:0;transition:opacity .3s}
+.delta.show{opacity:1}
+.sec-t{font-size:10.5px;font-weight:700;color:var(--ts);margin:18px 0 9px;display:flex;justify-content:space-between}
+.sec-t .miss{color:var(--crit);font-weight:700}
+.chk{display:grid;grid-template-columns:98px 1fr 26px;gap:8px;align-items:center;margin-bottom:8px;cursor:pointer;padding:3px 5px;margin-left:-5px;border-radius:6px}
+.chk:hover{background:var(--su)}
+.chk .cl{font-size:11.5px;color:var(--ts)}.chk .tk{position:relative;height:9px;background:var(--ln2);border-radius:3px;overflow:hidden}
+.chk .fl{position:absolute;left:0;top:0;bottom:0;border-radius:3px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+.chk .cv{font-size:10.5px;text-align:right;font-variant-numeric:tabular-nums;font-weight:700}
+.sug{display:flex;gap:9px;padding:9px 0;border-top:1px solid var(--ln2);font-size:12px;line-height:1.55}
+.sug:first-of-type{border-top:0}
+.sug .n{flex:none;width:18px;height:18px;border-radius:50%;background:var(--brand);color:#fff;font:700 10.5px/18px inherit;text-align:center;transition:background .3s}
+.sug.done .n{background:var(--good)}.sug.done .t{color:var(--tm);text-decoration:line-through}
+.foot{padding:11px 20px;background:var(--su);border-top:1px solid var(--ln);font-size:10px;color:var(--tm);line-height:1.6}
+@media(max-width:840px){.wk{grid-template-columns:1fr}.pane.left{border-right:0;border-bottom:1px solid var(--ln)}
+  .hero{flex-direction:column;align-items:flex-start}.hero .stat{margin-left:0;text-align:left}}
 </style>
 
-<div class="viz-root">
+<div class="app">
+  <h2 class="sr-only">감시 보도 코파일럿 — 기사를 입력하면 감시 점수와 감점 근거, 개선 취재 방향을 보여주는 도구</h2>
 
-  <div class="topbar">
+  <div class="hero">
     <div>
-      <div class="brand">감시 보도 코파일럿 <span>Watchdog Copilot · 시연</span></div>
-      <div class="article-meta">
-        평가 대상 &nbsp;<b>「동부건설, 3분기 누적 영업익 173억원 "수익성·재무안정성 동반 개선"」</b><br>
-        아시아투데이 · 2025 · 빅카인즈 표본 S0012
-      </div>
+      <h1>기사의 감시 기능을 채점하고,<br>무엇을 더 취재해야 하는지 알려줍니다.</h1>
+      <p>감시는 기자가 가장 중요하다고 답한 역할이지만(4.55/5), 지면에서 가장 비어 있는 기능이었다.
+         이 도구는 그 격차를 <b style="color:#fff">기사 한 편 단위</b>에서 좁힌다.</p>
     </div>
-    <div class="toggle" role="group" aria-label="개선 전후 전환">
-      <button id="btnBefore" aria-pressed="true">개선 전</button>
-      <button id="btnAfter" aria-pressed="false">개선 후</button>
+    <div class="stat">
+      <div class="big">91%</div>
+      <div class="cap">2025년 지면 기사 1,124건 중<br>감시 점수 20점 미만 비율(실측)</div>
     </div>
   </div>
 
-  <div class="grid">
-    <!-- 좌: 점수 + 체크리스트 -->
-    <div>
-      <div class="card">
-        <h3>① 감시 점수</h3>
-        <p class="sub">체크리스트 5항목(각 0~20점)의 합계</p>
-        <div class="hero">
-          <span class="num" id="score">0</span>
-          <span class="den">/ 100</span>
-          <span class="delta" id="delta" hidden>▲ +63</span>
+  <div class="shell">
+    <div class="hd">
+      <div class="logo"><span class="dot">감</span> 감시 보도 코파일럿</div>
+      <span class="tag">Watchdog Copilot</span>
+      <div class="spacer"></div>
+      <span class="pill">붙여넣기 → 감시 기능 진단 → 개선 취재 제안</span>
+    </div>
+
+    <div class="bar">
+      <span class="lbl">기사</span>
+      <button class="chip on">📄 샘플 기사</button>
+      <button class="chip" id="pasteChip">＋ 붙여넣기</button>
+      <div class="spacer"></div>
+      <div class="seg" role="group" aria-label="원본/개선본 전환">
+        <button id="bB" aria-pressed="true">원본</button>
+        <button id="bA" class="hl" aria-pressed="false">개선 후 ▸</button>
+      </div>
+      <button class="cta" id="reBtn">↻ 다시 분석</button>
+    </div>
+
+    <div class="wk">
+      <div class="pane left">
+        <div class="pane-h"><h3>기사 본문</h3><span class="meta" id="docMeta">밑줄을 클릭하면 이유가 보입니다</span></div>
+        <div class="doc" id="doc"></div>
+        <div class="legend">
+          <i><span class="sw" style="border-color:var(--crit)"></span> 감점 — 발표를 그대로 전달</i>
+          <i><span class="sw" style="border-color:var(--good)"></span> 가점 — 기자의 검증·취재</i>
         </div>
-        <span class="verdict" id="verdict">판정 · 정보·의제</span>
-        <p class="hero-note" id="heroNote">
-          감시 판정 기준은 70점입니다. 본 연구의 골든셋 검증에서 이 기준의 정밀도는 1.000,
-          재현율은 0.333이었습니다.
-        </p>
+        <div class="note empty" id="note"></div>
       </div>
 
-      <div class="card">
-        <h3>② 감시 체크리스트</h3>
-        <p class="sub">연구가 도출한 5개 기준 · 각 0~20점</p>
+      <div class="pane">
+        <div class="score-card">
+          <div class="ring" id="ring"><div class="in"><b id="score">0</b><span>/100</span></div></div>
+          <div class="score-meta">
+            <span class="verdict" id="verdict"></span><span class="delta" id="delta"></span>
+            <h4 id="scoreTitle"></h4><p id="scoreDesc"></p>
+          </div>
+        </div>
+        <div class="sec-t"><span>감시 체크리스트 · 항목별 (0~20)</span><span class="miss" id="missCnt"></span></div>
         <div id="checks"></div>
-      </div>
-
-      <div class="card">
-        <h3>③ 3역할 점수</h3>
-        <p class="sub">분석 ③과 동일한 세 기능군 축</p>
-        <div id="roles"></div>
+        <div class="sec-t"><span>이 기사에 필요한 추가 취재</span></div>
+        <div id="sugs"></div>
       </div>
     </div>
 
-    <!-- 우: 근거 + 제안 -->
-    <div>
-      <div class="card">
-        <h3>④ 평가 근거</h3>
-        <p class="sub">점수의 이유와 그 근거가 된 원문</p>
-        <p class="reason" id="reason"></p>
-        <button class="evidence-btn" id="evBtn" aria-pressed="false">근거 보기</button>
-        <div class="src" id="src" hidden></div>
-      </div>
-
-      <div class="card">
-        <h3>⑤ 개선 제안</h3>
-        <p class="sub">무엇을 더 취재해야 하는가</p>
-        <div id="sugs"></div>
-      </div>
-
-      <p class="foot">
-        모든 점수와 문장은 실제 평가 결과입니다. 개선 전은 보도된 원문을,
-        개선 후는 제안을 반영해 연구진이 작성한 수정본을 동일한 프롬프트로 재평가한 값입니다.
-        평가 모델은 본문 3.4절의 전체 기사 분석에 사용한 것과 동일합니다.
-      </p>
+    <div class="foot">
+      실제 평가 결과입니다. 원본은 보도된 기사(아시아투데이 「동부건설, 3분기 누적 영업익 173억원」),
+      개선 후는 도구의 제안을 반영해 작성한 수정본을 같은 엔진으로 재평가한 값입니다. 감시 판정 기준 70점.
     </div>
   </div>
 </div>
 
 <script>
-const CHECKS = ["공공기관 주장 검증","근거자료 확인","반론 포함","추가취재 수행","책임 소재 제시"];
-const DATA = {
-  before:{
-    score:0, roles:{감시:5, "정보·의제":95, 해결책:0},
-    checks:[0,0,0,0,0],
-    reason:"기업이 배포한 보도자료와 공시 내용을 기자가 비판적 검증 없이 그대로 받아쓰기한 전형적인 홍보성 기사입니다.",
-    src:'동부건설은 올해 3분기까지 수익성과 재무 안정성이 동시에 개선되며 실적 회복세를 <mark class="hl">이어가고 있다고 14일 밝혔다</mark>. 원가 혁신·선별 수주 전략·재무구조 정상화가 복합적으로 작용하고 <mark class="hl">있다는 설명이다</mark>. 이날 금융감독원 전자공시시스템에 따르면 3분기 누적 연결 매출액은 1조2350억원, 영업이익은 173억원을 기록했다.',
-    srcCap:"표시된 부분은 감점의 근거입니다. 회사의 발표를 전달하는 서술만 있고, 그 주장을 기자가 독립적으로 확인한 대목이 없습니다.",
-    done:[]
-  },
-  after:{
-    score:63, roles:{감시:60, "정보·의제":70, 해결책:5},
-    checks:[15,18,5,15,10],
-    reason:"회사의 보도자료를 그대로 받아쓰지 않고 금융감독원 전자공시시스템의 원문 데이터를 직접 분석하여 '원가 혁신'이라는 사측의 주장을 실질적인 수치로 검증했기 때문입니다.",
-    src:'그러나 본지가 금융감독원 전자공시시스템에 제출된 3분기 보고서를 확인한 결과, <mark class="hl">영업이익 173억원 가운데 상당 부분은 판매관리비 축소와 공사손실충당금 환입에서 나온 것</mark>으로 회사가 강조한 「원가 혁신」의 효과와는 성격이 달랐다. 하도급 업체 관계자는 "발주 물량 자체가 줄어 현장에서 체감하는 일감은 오히려 부족하다"고 말했다.',
-    srcCap:"개선 후에는 발표를 원문 데이터로 교차 확인한 서술이 추가되어 「공공기관 주장 검증」과 「근거자료 확인」 점수가 올랐습니다.",
-    done:[0,1,2]
+(function(){
+const CHECKS=["공공기관 주장 검증","근거자료 확인","반론 포함","추가취재 수행","책임 소재 제시"];
+const NOTES={
+ f1:{t:"crit",c:"공공기관 주장 검증",d:"회사가 「밝혔다」고 발표한 내용을 그대로 옮겼습니다. 기자가 이 주장을 독립적 자료로 확인한 대목이 없어 0점입니다."},
+ f2:{t:"crit",c:"근거자료 확인",d:"「~라는 설명이다」 — 회사 측 설명을 인용만 했을 뿐, 원가 혁신이 실제로 있었는지 원문·데이터로 확인하지 않았습니다."},
+ f3:{t:"crit",c:"추가취재 수행",d:"공시 수치를 그대로 전달했습니다. 이 숫자가 무엇을 의미하는지 기자가 재가공·분석한 내용이 없습니다."},
+ c1:{t:"good",c:"공공기관 주장 검증 · 근거자료 확인",d:"전자공시 원문을 직접 확인해, 회사가 강조한 「원가 혁신」과 실제 수치의 성격이 다르다는 것을 검증했습니다. 두 항목이 함께 올랐습니다."},
+ c2:{t:"good",c:"반론 포함 · 추가취재 수행",d:"하도급 업체 관계자를 직접 취재해 회사 발표와 다른 현장의 목소리를 실었습니다. 발표에 없던 사실을 더했습니다."},
+ c3:{t:"good",c:"책임 소재 제시",d:"외부 전문가의 평가로 「일회성 요인」이라는 문제의 성격을 짚어, 무엇을 따져봐야 하는지 분명히 했습니다."}};
+const DATA={
+ before:{score:0,verdict:"정보·의제",vColor:"crit",title:"발표 전달형 기사",desc:"체크리스트 다섯 항목이 모두 미충족입니다. 보도자료를 검증 없이 옮긴 전형입니다.",checks:[0,0,0,0,0],first:"f1",
+  doc:'<span class="src">아시아투데이 · 원본 보도 기사</span>동부건설은 올해 3분기까지 수익성과 재무 안정성이 동시에 개선되며 <mark class="flag" data-n="f1">실적 회복세를 이어가고 있다고 14일 밝혔다</mark>. 원가 혁신·선별 수주 전략·재무구조 정상화가 <mark class="flag" data-n="f2">복합적으로 작용하고 있다는 설명이다</mark>. 이날 금융감독원 전자공시시스템에 따르면 <mark class="flag" data-n="f3">3분기 누적 연결 매출액은 1조2350억원, 영업이익은 173억원을 기록했다</mark>.',
+  sugs:[{t:"공시 재무제표 세부 항목을 분석해 영업이익 개선이 일시적 비용 절감인지 확인",done:false},{t:"‘원가 혁신’·‘선별 수주’가 현장·하도급 구조에 미친 영향을 업계 관계자 인터뷰로 확인",done:false},{t:"부채비율 등 재무 안정성 지표를 업계 평균과 비교",done:false}]},
+ after:{score:63,verdict:"정보·의제",vColor:"warn",title:"검증·취재가 더해진 기사",desc:"네 항목이 충족·부분 충족으로 올랐습니다. 감시 판정 기준(70점)에는 조금 못 미칩니다.",checks:[15,18,5,15,10],first:"c1",
+  doc:'<span class="src">수정본 · 개선 제안 반영</span>동부건설은 3분기까지 수익성과 재무 안정성이 개선됐다고 14일 밝혔다. <mark class="credit" data-n="c1">그러나 본지가 전자공시시스템의 3분기 보고서를 확인한 결과, 영업이익 173억원의 상당 부분은 판매관리비 축소와 공사손실충당금 환입에서 나온 것으로 회사가 강조한 「원가 혁신」과는 성격이 달랐다</mark>. <mark class="credit" data-n="c2">하도급 업체 관계자는 “발주 물량 자체가 줄어 현장에서 체감하는 일감은 오히려 부족하다”고 말했다</mark>. <mark class="credit" data-n="c3">한 신용평가사 연구원은 “일회성 요인을 제외하면 본질적 수익성 회복으로 보기 이르다”고 평가했다</mark>.',
+  sugs:[{t:"공시 재무제표 세부 항목을 분석해 영업이익 개선이 일시적 비용 절감인지 확인",done:true},{t:"‘원가 혁신’·‘선별 수주’가 현장·하도급 구조에 미친 영향을 업계 관계자 인터뷰로 확인",done:true},{t:"부채비율 등 재무 안정성 지표를 업계 평균과 비교",done:true}]}};
+const badge=v=>v>=12?"good":v>=6?"warn":"crit";
+const fillC=v=>v>=12?"var(--good)":v>=6?"var(--warn)":"var(--crit)";
+const ringCol=s=>s>=70?"var(--good)":s>=40?"var(--warn)":"var(--crit)";
+const V={crit:["var(--crit-soft)","var(--crit)"],warn:["var(--warn-soft)","var(--warn)"],good:["var(--good-soft)","var(--good)"]};
+let curScore=0, raf=null;
+function animateScore(to){
+  cancelAnimationFrame(raf);
+  const from=curScore, t0=performance.now(), dur=650, col=ringCol(to);
+  const ring=document.getElementById("ring"), num=document.getElementById("score");
+  function step(now){
+    const p=Math.min(1,(now-t0)/dur), e=1-Math.pow(1-p,3), v=Math.round(from+(to-from)*e);
+    num.textContent=v;
+    ring.style.background=`conic-gradient(${col} ${v*3.6}deg, var(--ln2) 0)`;
+    if(p<1) raf=requestAnimationFrame(step); else curScore=to;
   }
-};
-const SUGS = [
-  "공시된 재무제표의 세부 항목을 분석하여 영업이익 개선이 일시적 비용 절감인지 본질적 수익성 회복인지 확인",
-  "‘원가 혁신’과 ‘선별 수주’가 실제 현장·하도급 구조에 미친 영향에 대해 업계 관계자 인터뷰 수행",
-  "부채비율 등 재무 안정성 지표가 업계 평균 대비 어떤 수준인지 객관적 비교 데이터 제시"
-];
-const ROLE_COLOR = {"감시":"var(--series-1)","정보·의제":"var(--series-2)","해결책":"var(--series-3)"};
-
-function badge(v){
-  if(v>=12) return '<span class="badge b-good">● 충족</span>';
-  if(v>=6)  return '<span class="badge b-warn">◐ 부분 충족</span>';
-  return '<span class="badge b-crit">○ 미충족</span>';
+  raf=requestAnimationFrame(step);
 }
-function fillColor(v){
-  return v>=12?"var(--good)":v>=6?"var(--warning)":"var(--critical)";
+function showNote(id){
+  const n=NOTES[id],box=document.getElementById("note");
+  document.querySelectorAll("#doc mark").forEach(m=>m.classList.remove("on"));
+  const el=document.querySelector('#doc mark[data-n="'+id+'"]'); if(el) el.classList.add("on");
+  box.className="note";
+  box.innerHTML='<div class="k"><span class="b '+n.t+'">'+(n.t==="crit"?"감점 근거":"가점 근거")+'</span>'+n.c+'</div>'+n.d;
 }
-function render(state){
-  const d = DATA[state];
-  document.getElementById("score").textContent = d.score;
-  document.getElementById("delta").hidden = (state!=="after");
-  document.getElementById("verdict").textContent =
-    "판정 · " + (d.score>=70 ? "감시" : "정보·의제");
-  document.getElementById("heroNote").textContent = d.score>=70
-    ? "감시 판정 기준(70점)을 충족했습니다."
-    : "감시 판정 기준은 70점입니다. 개선 후에도 기준에는 미치지 못하므로, 역할 구분이 바뀐 것이 아니라 감시 기능의 충족도가 상승한 것으로 읽어야 합니다.";
-
-  document.getElementById("checks").innerHTML = CHECKS.map((n,i)=>{
-    const v = d.checks[i];
-    return `<div class="row">
-      <span class="lb">${n}</span>
-      <span class="track"><span class="fill" style="width:${v/20*100}%;background:${fillColor(v)}"></span></span>
-      <span class="val"><b>${v}</b>/20 ${badge(v)}</span></div>`;
-  }).join("");
-
-  document.getElementById("roles").innerHTML = Object.entries(d.roles).map(([n,v])=>
-    `<div class="row">
-      <span class="lb">${n}</span>
-      <span class="track"><span class="fill" style="width:${v}%;background:${ROLE_COLOR[n]}"></span></span>
-      <span class="val"><b>${v}</b>/100</span></div>`).join("");
-
-  document.getElementById("reason").textContent = d.reason;
-  const src = document.getElementById("src");
-  src.innerHTML = d.src + `<div class="src-cap">${d.srcCap}</div>`;
-
-  document.getElementById("sugs").innerHTML = SUGS.map((s,i)=>
-    `<div class="sug ${d.done.includes(i)?"done":""}">
-      <span class="n">${d.done.includes(i)?"✓":i+1}</span>
-      <span class="tx">${s}</span></div>`).join("");
+function render(k,animate){
+  const d=DATA[k];
+  animateScore(d.score);
+  const vd=document.getElementById("verdict");vd.textContent="판정 · "+d.verdict;const vc=V[d.vColor];vd.style.background=vc[0];vd.style.color=vc[1];
+  const del=document.getElementById("delta");
+  if(k==="after"){del.textContent="▲ +63";del.classList.add("show");} else {del.classList.remove("show");}
+  document.getElementById("scoreTitle").textContent=d.title;document.getElementById("scoreDesc").textContent=d.desc;
+  document.getElementById("doc").innerHTML=d.doc;
+  const miss=d.checks.filter(v=>v<6).length;
+  document.getElementById("missCnt").textContent=miss?("미충족 "+miss+"/5"):"미충족 없음";
+  document.getElementById("missCnt").style.color=miss?"var(--crit)":"var(--good)";
+  // 막대: 0에서 시작해 애니메이션
+  document.getElementById("checks").innerHTML=CHECKS.map((c,i)=>{const v=d.checks[i];
+    return '<div class="chk"><span class="cl">'+c+'</span><span class="tk"><span class="fl" data-w="'+(v/20*100)+'" style="width:0;background:'+fillC(v)+'"></span></span><span class="cv" style="color:'+fillC(v)+'">'+v+'</span></div>';}).join("");
+  requestAnimationFrame(()=>document.querySelectorAll("#checks .fl").forEach(f=>f.style.width=f.dataset.w+"%"));
+  document.getElementById("sugs").innerHTML=d.sugs.map((s,i)=>'<div class="sug '+(s.done?"done":"")+'"><span class="n">'+(s.done?"✓":i+1)+'</span><span class="t">'+s.t+'</span></div>').join("");
+  document.querySelectorAll("#doc mark").forEach(m=>m.onclick=()=>showNote(m.dataset.n));
+  showNote(d.first); // 로드 즉시 첫 근거 자동 표시
 }
-const bB=document.getElementById("btnBefore"), bA=document.getElementById("btnAfter");
-function set(state){
-  bB.setAttribute("aria-pressed", state==="before");
-  bA.setAttribute("aria-pressed", state==="after");
-  render(state);
-}
-bB.onclick=()=>set("before"); bA.onclick=()=>set("after");
-document.getElementById("evBtn").onclick=function(){
-  const on=this.getAttribute("aria-pressed")==="true";
-  this.setAttribute("aria-pressed", !on);
-  document.getElementById("src").hidden = on;
-  this.textContent = on ? "근거 보기" : "근거 닫기";
-};
+const bB=document.getElementById("bB"),bA=document.getElementById("bA");
+function set(k){bB.setAttribute("aria-pressed",k==="before");bA.setAttribute("aria-pressed",k==="after");render(k,true);}
+bB.onclick=()=>set("before");bA.onclick=()=>set("after");
+document.getElementById("reBtn").onclick=()=>{const k=bA.getAttribute("aria-pressed")==="true"?"after":"before";render(k,true);};
+document.getElementById("pasteChip").onclick=function(){document.getElementById("docMeta").textContent="데모에서는 샘플 기사로 고정되어 있습니다";};
 set("before");
+})();
 </script>
